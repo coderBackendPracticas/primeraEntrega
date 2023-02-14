@@ -50,9 +50,11 @@ routerCarritos.get('/:cid', (req, res)=>{
     let cid = parseInt(req.params.cid);
     return res.json(carts.getCartById(cid));
 })
-/* routerCarritos.post('/:cid/product/:pid', (req, res)=>{
-
-}) */
+routerCarritos.post('/:cid/product/:pid', (req, res)=>{
+    let cid = parseInt(req.params.cid);
+    let pid = parseInt(req.params.pid);
+    return res.json(carts.addProductToCart(cid,pid));
+}) 
 
 // Servidor
 const PORT = 8080

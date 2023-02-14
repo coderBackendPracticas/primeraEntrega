@@ -17,23 +17,47 @@ class CartManager{
     }
     getCartById(id){
         if(fs.existsSync(this.path)){
-            this.products = JSON.parse(fs.readFileSync(this.path))
+            this.carts = JSON.parse(fs.readFileSync(this.path))
             const cartBuscado = this.carts.find(cart => cart.id === id)
             if(cartBuscado){
                 return {cartBuscado}
             }else return {error: 'Producto no encontrado'}
         }else return {error: 'No hay registro de carritos'}
     }
-    deleteProduct(id){
+    addProductToCart(cartId, productId){
         if(fs.existsSync(this.path)){
-            this.products = JSON.parse(fs.readFileSync(this.path))
-            let index = this.products.findIndex(product => product.id === id)
-            if(index){
-                this.products.splice(index,index+1)
-                fs.writeFileSync(this.path, JSON.stringify(this.products))
-                return {sucess: "Producto Elminado"}
-            }else return {error: "Producto a eliminar no encontrado"}
-        }else return{ error: "No hay registro de productos para eliminar"}
+            this.carts = JSON.parse(fs.readFileSync(this.path));
+            const cartBuscado = this.carts.find(cart => cart.id === cartId);
+            let indexCart = this.carts.findIndex(cart => cart.id === cartId);
+            if(cartBuscado){
+                if(cartBuscado.products.length){
+                    let products = cartBuscado.products;
+                    let prod = products.find(p => p.product === productId);
+                    if(prod){
+                        let index = products.findIndex(p => p.product === productId);
+                        products[index].quantity++;
+                        cartBuscado.products = products;
+                        this.carts.splice(indexCart, 1, cartBuscado);
+                        fs.writeFileSync(this.path, JSON.stringify(this.carts));
+                        return {sucess: `Has agregado un producto más con id ${productId}`}
+                    }else{
+                        products.push({product: productId, quantity: 1});
+                        cartBuscado.products = products;
+                        this.carts.splice(indexCart, 1, cartBuscado);
+                        fs.writeFileSync(this.path, JSON.stringify(this.carts));
+                        return {sucess: `Has agregado el producto con id ${productId}`}
+                    }
+                } else{
+                    let products = [];
+                    products.push({product: productId, quantity: 1});
+                    cartBuscado.products = products;
+                    this.carts.splice(indexCart, 1, cartBuscado);
+                    fs.writeFileSync(this.path, JSON.stringify(this.carts));
+                    return {sucess: `Has agregado el primer producto con id ${productId}`}
+                }
+                
+            }else return {error: 'Carrito no encontrado'}
+        }else return {error: 'No hay registro de carritos'}
     }
 }
 export default CartManager;
